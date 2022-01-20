@@ -1,0 +1,44 @@
+pkgname=qemu
+pkgver=v6.1.1
+pkgrel=3
+pkgdesc='QEMU is a generic and open source machine & userspace emulator and virtualizer.'
+pkggit="https://gitlab.com/qemu-project/qemu.git"
+pkgref="54e1f5be86dd11744e45da8be6afad01d01d59e7"
+image="docker.io/alpine:3.14"
+
+prepare() {
+ apk add\
+ make git tar bash\
+ samurai\
+ perl\
+ python3\
+ gcc\
+ libc-dev\
+ pkgconf\
+ linux-headers\
+ glib-dev glib-static\
+ zlib-dev zlib-static\
+ pixman-dev pixman-static
+}
+
+build() {
+  export GOPATH=/src/$pkgname/gopath
+  ./configure \
+    --prefix="/src/$pkgname" \
+    --disable-debug-info \
+    --disable-werror \
+    --enable-linux-user \
+    --static\
+    --disable-gtk \
+    --disable-vte \
+    --disable-brlapi \
+    --disable-opengl \
+    --disable-virglrenderer \
+    --disable-sdl
+  make -j$(nproc)
+}
+
+package() {
+  install -Dm755 build/* $pkgdir/
+}
+
